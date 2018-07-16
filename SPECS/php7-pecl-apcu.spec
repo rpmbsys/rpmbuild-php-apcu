@@ -27,6 +27,9 @@ BuildRequires:  php-devel > 7
 BuildRequires:  php-pear
 BuildRequires:  pcre-devel
 
+Requires(post): %{__pecl}
+Requires(postun): %{__pecl}
+
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 
@@ -179,8 +182,16 @@ REPORT_EXIT_STATUS=1 \
 %{__ztsphp} -n run-tests.php
 %endif
 
+%post
+%{pecl_install} %{pecl_xmldir}/%{name}.xml >/dev/null || :
+
+%postun
+if [ $1 -eq 0 ] ; then
+    %{pecl_uninstall} %{pecl_name} >/dev/null || :
+fi
 
 %files
+%{!?_licensedir:%global license %%doc}
 %license NTS/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
