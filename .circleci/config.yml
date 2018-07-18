@@ -46,7 +46,7 @@ jobs:
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/peclbuild:7-apcu
-            docker push aursu/pearbuild:6-apcu
+            docker push aursu/peclbuild:6-apcu
       - store_artifacts:
           path: ~/el6/RPMS
       - store_artifacts:
@@ -96,8 +96,8 @@ jobs:
           name: Upload Docker images (PHP 5)
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push aursu/pearbuild:7-apcu-php5
-            docker push aursu/pearbuild:6-apcu-php5
+            docker push aursu/peclbuild:7-apcu-php5
+            docker push aursu/peclbuild:6-apcu-php5
       - store_artifacts:
           path: ~/php5
 workflows:
