@@ -90,7 +90,7 @@ jobs:
           path: ~/php5
 workflows:
   version: 2
-  pearbuild:
+  apcubuild:
     jobs:
-      - build5
       - build
+      - build5
