@@ -1,6 +1,6 @@
 ARG centos=7
 
-FROM aursu/pearbuild:${centos}-php5build
+FROM aursu/pearbuild:${centos}-build-php5
 
 COPY SOURCES ${BUILD_TOPDIR}/SOURCES
 COPY SPECS ${BUILD_TOPDIR}/SPECS
