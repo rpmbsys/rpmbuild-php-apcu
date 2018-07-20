@@ -13,16 +13,12 @@
 
 %global pecl_name apcu
 %global with_zts  0%{?__ztsphp:1}
-%if "%{php_version}" < "5.6"
-%global ini_name  %{pecl_name}.ini
-%else
 %global ini_name  40-%{pecl_name}.ini
-%endif
 
 Name:           php-pecl-apcu
 Summary:        APC User Cache
 Version:        4.0.11
-Release:        2%{?dist}
+Release:        3%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
@@ -257,6 +253,9 @@ fi
 
 
 %changelog
+* Fri Jul 20 2018 Alexander Ursu <alexander.ursu@gmail.com> - 4.0.11-3
+- PHP 5.6 build
+
 * Wed May 04 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-2
 - don't provide php-pecl-apc, per request #1302785
 
