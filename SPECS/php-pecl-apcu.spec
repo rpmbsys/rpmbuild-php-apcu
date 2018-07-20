@@ -22,7 +22,7 @@
 Name:           php-pecl-apcu
 Summary:        APC User Cache
 Version:        4.0.11
-Release:        1%{?dist}
+Release:        2%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
@@ -47,17 +47,10 @@ Provides:       php-apcu%{?_isa} = %{version}
 Provides:       php-pecl(apcu) = %{version}
 Provides:       php-pecl(apcu)%{?_isa} = %{version}
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:      php-pecl-apc < 4
+Conflicts:      php-pecl-apc
 %else
-Obsoletes:      php-pecl-apc < 4
+Obsoletes:      php-pecl-apc
 %endif
-# Same provides than APC, this is a drop in replacement
-Provides:       php-apc = %{version}
-Provides:       php-apc%{?_isa} = %{version}
-Provides:       php-pecl-apc = %{version}
-Provides:       php-pecl-apc%{?_isa} = %{version}
-Provides:       php-pecl(APC) = %{version}
-Provides:       php-pecl(APC)%{?_isa} = %{version}
 
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
 # Filter shared private
@@ -93,12 +86,10 @@ Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
 Requires:      php-devel%{?_isa}
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:     php-pecl-apc-devel < 4
+Conflicts:     php-pecl-apc-devel
 %else
-Obsoletes:     php-pecl-apc-devel < 4
+Obsoletes:     php-pecl-apc-devel
 %endif
-Provides:      php-pecl-apc-devel = %{version}-%{release}
-Provides:      php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 These are the files needed to compile programs using APCu.
@@ -113,11 +104,10 @@ Requires:      mod_php
 Requires:      php-gd
 Requires:      httpd
 %if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:     apc-panel < 4
+Conflicts:     apc-panel
 %else
-Obsoletes:     apc-panel < 4
+Obsoletes:     apc-panel
 %endif
-Provides:      apc-panel = %{version}-%{release}
 
 %description -n apcu-panel
 This package provides the APCu control panel, with Apache
@@ -267,6 +257,9 @@ fi
 
 
 %changelog
+* Wed May 04 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-2
+- don't provide php-pecl-apc, per request #1302785
+
 * Wed Apr 20 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-1
 - Update to 4.0.11 (stable)
 
