@@ -53,6 +53,14 @@ jobs:
               -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
               -e BINTRAY_REPO=$BINTRAY_REPO \
               -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos6bintray
+      - run:
+          name: Build php-pecl-apcu Docker build images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            sleep 30
+            docker-compose -f build/docker-compose.yml build --no-cache --pull
+            docker push aursu/peclbuild:6-php-apcu-7.1
+            docker push aursu/peclbuild:7-php-apcu-7.1
   build5:
     machine:
       docker_layer_caching: true
@@ -106,6 +114,14 @@ jobs:
               -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
               -e BINTRAY_REPO=$BINTRAY_REPO \
               -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos6bintray
+      - run:
+          name: Build php-pecl-apcu Docker build images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            sleep 30
+            docker-compose -f build/docker-compose.yml build --no-cache --pull
+            docker push aursu/peclbuild:6-php-apcu-6.6
+            docker push aursu/peclbuild:7-php-apcu-5.6
   build73:
     machine:
       docker_layer_caching: true
@@ -154,6 +170,13 @@ jobs:
               -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
               -e BINTRAY_REPO=$BINTRAY_REPO \
               -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos7bintray
+      - run:
+          name: Build php-pecl-apcu Docker build images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            sleep 30
+            docker-compose -f build/docker-compose.yml build --no-cache --pull
+            docker push aursu/peclbuild:7-php-apcu-7.3
 
 workflows:
   version: 2
