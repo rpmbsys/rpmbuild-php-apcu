@@ -119,7 +119,7 @@ jobs:
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             sleep 30
-            docker-compose -f build/docker-compose.yml build --no-cache --pull
+            docker-compose -f build/docker-compose.php5.yml build --no-cache --pull
             docker push aursu/peclbuild:6-php-apcu-6.6
             docker push aursu/peclbuild:7-php-apcu-5.6
   build73:
@@ -175,7 +175,7 @@ jobs:
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             sleep 30
-            docker-compose -f build/docker-compose.yml build --no-cache --pull
+            docker-compose -f build/docker-compose.php73.yml build --no-cache --pull
             docker push aursu/peclbuild:7-php-apcu-7.3
 
 workflows:
