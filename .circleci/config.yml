@@ -115,12 +115,20 @@ jobs:
               -e BINTRAY_REPO=$BINTRAY_REPO \
               -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos6bintray
       - run:
+          name: refresh repositories
+          command: |
+            docker-compose -f rpmbuild/docker-compose.refresh.yml pull
+            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
+            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos6refresh
+      - run:
           name: Build php-pecl-apcu Docker build images
           command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            sleep 30
             docker-compose -f build/docker-compose.php5.yml build --no-cache --pull
-            docker push aursu/peclbuild:6-php-apcu-6.6
+      - run:
+          name: Upload php-pecl-apcu Docker build images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push aursu/peclbuild:6-php-apcu-5.6
             docker push aursu/peclbuild:7-php-apcu-5.6
   build73:
     machine:
