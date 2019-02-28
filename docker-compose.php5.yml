@@ -9,7 +9,7 @@ services:
       dockerfile: Dockerfile.php-5
       args:
         centos: 6
-    image: aursu/peclbuild:6-apcu-php5
+    image: aursu/peclbuild:6-apcu-php-5.6
   centos7apcubuildphp5:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
@@ -17,7 +17,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.php-5
-    image: aursu/peclbuild:7-apcu-php5
+    image: aursu/peclbuild:7-apcu-php-5.6
 
 volumes:
   rpms:

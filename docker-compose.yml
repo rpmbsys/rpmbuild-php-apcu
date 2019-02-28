@@ -8,14 +8,14 @@ services:
       context: .
       args:
         centos: 6
-    image: aursu/peclbuild:6-apcu
+    image: aursu/peclbuild:6-apcu-php-7.1
   centos7apcubuild:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm7:/home/centos/rpmbuild/RPMS
     build:
       context: .
-    image: aursu/peclbuild:7-apcu
+    image: aursu/peclbuild:7-apcu-php-7.1
 
 volumes:
   rpms:

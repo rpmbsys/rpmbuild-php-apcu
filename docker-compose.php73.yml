@@ -1,0 +1,17 @@
+version: "3.5"
+services:
+  centos7apcubuildphp73:
+    volumes:
+      - rpms:/home/centos/rpmbuild/SRPMS
+      - rpm7:/home/centos/rpmbuild/RPMS
+    build:
+      context: .
+      args:
+        image: php-7.3
+    image: aursu/peclbuild:7-apcu-php-7.3
+
+volumes:
+  rpms:
+    name: rpms
+  rpm7:
+    name: rpm7
