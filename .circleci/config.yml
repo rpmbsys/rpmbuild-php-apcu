@@ -60,7 +60,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos6refresh
       - run:
           name: Build php-pecl-apcu build Docker images (PHP 7.1)
-          command: sdocker-compose -f build/docker-compose.yml build --no-cache --pull
+          command: docker-compose -f build/docker-compose.yml build --no-cache --pull
       - run:
           name: Build php-pecl-apcu build Docker images (PHP 7.1)
           command: |
