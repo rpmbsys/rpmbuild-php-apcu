@@ -1,6 +1,6 @@
 version: "3.5"
 services:
-  centos7apcubuildphp73:
+  centos7apcuphp73:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm7:/home/centos/rpmbuild/RPMS
