@@ -31,8 +31,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml pull
       - run:
           name: Start docker services for rpmbuild
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml up -d
+          command: docker-compose -f rpmbuild/docker-compose.yml up -d
           background: true
           no_output_timeout: 2h
       - run:
@@ -60,11 +59,10 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos6refresh
       - run:
-          name: Build php-pecl-apcu Docker build images
-          command: |
-            docker-compose -f build/docker-compose.yml build --no-cache --pull
+          name: Build php-pecl-apcu build Docker images (PHP 7.1)
+          command: sdocker-compose -f build/docker-compose.yml build --no-cache --pull
       - run:
-          name: Build php-pecl-apcu Docker build images
+          name: Build php-pecl-apcu build Docker images (PHP 7.1)
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/peclbuild:6-php-apcu-7.1
@@ -100,8 +98,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml pull
       - run:
           name: Start docker services for rpmbuild
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml up -d
+          command: docker-compose -f rpmbuild/docker-compose.yml up -d
           background: true
           no_output_timeout: 2h
       - run:
@@ -129,11 +126,10 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos6refresh
       - run:
-          name: Build php-pecl-apcu Docker build images
-          command: |
-            docker-compose -f build/docker-compose.php5.yml build --no-cache --pull
+          name: Build php-pecl-apcu build Docker images (PHP 5)
+          command: docker-compose -f build/docker-compose.php5.yml build --no-cache --pull
       - run:
-          name: Upload php-pecl-apcu Docker build images
+          name: Upload php-pecl-apcu build Docker images (PHP 5)
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/peclbuild:6-php-apcu-5.6
@@ -169,8 +165,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml pull
       - run:
           name: Start docker services for rpmbuild
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml up -d
+          command: docker-compose -f rpmbuild/docker-compose.yml up -d
           background: true
           no_output_timeout: 2h
       - run:
@@ -193,11 +188,10 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos6refresh
       - run:
-          name: Build php-pecl-apcu Docker build images
-          command: |
-            docker-compose -f build/docker-compose.php73.yml build --no-cache --pull
+          name: Build php-pecl-apcu build Docker images (PHP 7.3)
+          command: docker-compose -f build/docker-compose.php73.yml build --no-cache --pull
       - run:
-          name: Build php-pecl-apcu Docker build images
+          name: Upload php-pecl-apcu build Docker images (PHP 7.3)
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/peclbuild:7-php-apcu-7.3
