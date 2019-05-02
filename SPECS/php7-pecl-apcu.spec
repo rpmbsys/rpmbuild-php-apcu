@@ -7,10 +7,9 @@
 # Please, preserve the changelog entries
 #
 %global pecl_name apcu
-%global with_zts  0%{?__ztsphp:1}
 %global ini_name  40-%{pecl_name}.ini
 
-Name:           php-pecl-apcu
+Name:           php7-pecl-apcu
 Summary:        APC User Cache
 Version:        5.1.17
 Release:        1%{?dist}
@@ -20,11 +19,13 @@ Source2:        %{pecl_name}-panel.conf
 Source3:        %{pecl_name}.conf.php
 
 License:        PHP
+Group:          Development/Languages
 URL:            http://pecl.php.net/package/APCu
 
 BuildRequires:  gcc
-BuildRequires:  php-devel > 7
-BuildRequires:  php-pear
+BuildRequires:  php7-devel
+BuildRequires:  php7-pear
+# Ubuntu: libpcre3-dev
 BuildRequires:  pcre-devel
 
 Requires(post): %{__pecl}
@@ -38,6 +39,7 @@ Provides:       php-apcu = %{version}
 Provides:       php-apcu%{?_isa} = %{version}
 Provides:       php-pecl(apcu) = %{version}
 Provides:       php-pecl(apcu)%{?_isa} = %{version}
+Autoreq: 0
 
 
 %description
@@ -51,8 +53,9 @@ in replacement for APC.
 
 %package devel
 Summary:       APCu developer files (header)
+Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
-Requires:      php-devel%{?_isa}
+Requires:      php7-devel%{?_isa}
 Obsoletes:     php-pecl-apc-devel < 4
 Provides:      php-pecl-apc-devel = %{version}-%{release}
 Provides:      php-pecl-apc-devel%{?_isa} = %{version}-%{release}
@@ -63,10 +66,11 @@ These are the files needed to compile programs using APCu.
 
 %package -n apcu-panel
 Summary:       APCu control panel
+Group:         Applications/Internet
 BuildArch:     noarch
 Requires:      %{name} = %{version}-%{release}
 Requires:      php(httpd)
-Requires:      php-gd
+Requires:      php7-gd
 Requires:      httpd
 Obsoletes:     apc-panel < 4
 Provides:      apc-panel = %{version}-%{release}
@@ -92,11 +96,6 @@ if test "x${extver}" != "x%{version}"; then
 fi
 cd ..
 
-%if %{with_zts}
-# duplicate for ZTS build
-cp -pr NTS ZTS
-%endif
-
 # Fix path to configuration file
 sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
     -i  NTS/apc.php
@@ -104,32 +103,18 @@ sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
 
 %build
 cd NTS
-%{_bindir}/phpize
+%{_bindir}/phpize7
 %configure \
    --enable-apcu \
-   --with-php-config=%{_bindir}/php-config
+   --with-php-config=%{_bindir}/php7-config
 make %{?_smp_mflags}
 
-%if %{with_zts}
-cd ../ZTS
-%{_bindir}/zts-phpize
-%configure \
-   --enable-apcu \
-   --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
-%endif
 
 
 %install
 # Install the NTS stuff
 make -C NTS install INSTALL_ROOT=%{buildroot}
 install -D -m 644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
-
-%if %{with_zts}
-# Install the ZTS stuff
-make -C ZTS install INSTALL_ROOT=%{buildroot}
-install -D -m 644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
-%endif
 
 # Install the package XML file
 install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
@@ -157,30 +142,16 @@ done
 
 %check
 cd NTS
-%{_bindir}/php -n \
+%{_bindir}/php7 -n \
    -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
    -m | grep 'apcu'
 
 # Upstream test suite for NTS extension
-TEST_PHP_EXECUTABLE=%{_bindir}/php \
+TEST_PHP_EXECUTABLE=%{_bindir}/php7 \
 TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
 NO_INTERACTION=1 \
 REPORT_EXIT_STATUS=1 \
-%{_bindir}/php -n run-tests.php
-
-%if %{with_zts}
-cd ../ZTS
-%{__ztsphp} -n \
-   -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so \
-   -m | grep 'apcu'
-
-# Upstream test suite for ZTS extension
-TEST_PHP_EXECUTABLE=%{__ztsphp} \
-TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__ztsphp} -n run-tests.php
-%endif
+%{_bindir}/php7 -n run-tests.php
 
 %post
 %{pecl_install} %{pecl_xmldir}/%{name}.xml >/dev/null || :
@@ -199,20 +170,9 @@ fi
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
-%if %{with_zts}
-%{php_ztsextdir}/%{pecl_name}.so
-%config(noreplace) %{php_ztsinidir}/%{ini_name}
-%endif
-
-
 %files devel
 %doc %{pecl_testdir}/%{pecl_name}
 %{php_incldir}/ext/%{pecl_name}
-
-%if %{with_zts}
-%{php_ztsincldir}/ext/%{pecl_name}
-%endif
-
 
 %files -n apcu-panel
 # Need to restrict access, as it contains a clear password
