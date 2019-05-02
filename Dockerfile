@@ -3,8 +3,6 @@ ARG image=php-7.1
 
 FROM aursu/pearbuild:${centos}-${image}
 
-ARG specfile=php-7-pecl-apcu.spec
-
 # PHP 7.3 build image based on pcre2-devel
 RUN yum -y install \
         pcre-devel \
