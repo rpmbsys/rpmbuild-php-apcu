@@ -17,5 +17,5 @@ RUN chown -R $BUILD_USER ${BUILD_TOPDIR}/{SOURCES,SPECS}
 
 USER $BUILD_USER
 
-ENTRYPOINT ["/usr/bin/rpmbuild", ${specfile}]
+ENTRYPOINT ["/usr/bin/rpmbuild", "php-7-pecl-apcu.spec"]
 CMD ["-ba"]
