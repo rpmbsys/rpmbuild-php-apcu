@@ -39,8 +39,6 @@ Provides:       php-apcu = %{version}
 Provides:       php-apcu%{?_isa} = %{version}
 Provides:       php-pecl(apcu) = %{version}
 Provides:       php-pecl(apcu)%{?_isa} = %{version}
-Autoreq: 0
-
 
 %description
 APCu is userland caching: APC stripped of opcode caching.
