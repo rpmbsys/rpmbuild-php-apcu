@@ -36,7 +36,9 @@ Requires:       php(api) = %{php_core_api}
 
 Obsoletes:      php-apcu < 4.0.0-1
 Provides:       php-apcu = %{version}
+Provides:       php7-apcu = %{version}
 Provides:       php-apcu%{?_isa} = %{version}
+Provides:       php7-apcu%{?_isa} = %{version}
 Provides:       php-pecl(apcu) = %{version}
 Provides:       php-pecl(apcu)%{?_isa} = %{version}
 
