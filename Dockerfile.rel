@@ -1,4 +1,7 @@
-FROM aursu/pearbuild:7-php7-7.1
+ARG centos=7
+ARG image=php7-7.1
+
+FROM aursu/pearbuild:${centos}-${image}
 
 RUN yum -y install \
         pcre-devel \
