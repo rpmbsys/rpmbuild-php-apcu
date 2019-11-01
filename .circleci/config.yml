@@ -51,56 +51,6 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/peclbuild:7-php-apcu-7.1
             docker push aursu/peclbuild:7-php7-apcu-7.1
-  build5:
-    machine:
-      image: ubuntu-1604:201903-01
-    environment:
-      BINTRAY_REPO: php5custom
-      PACKAGE_VCS_URL: https://github.com/aursu/rpmbuild-php-apcu
-    steps:
-      - checkout
-      - run:
-          name: Git submodules sync
-          command: |
-            git submodule sync
-            git submodule update --init
-      - run:
-          name: Pull images for RPM build docker services
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml pull
-            docker-compose -f rpmbuild/docker-compose.bintray.yml pull
-            docker-compose -f rpmbuild/docker-compose.refresh.yml pull
-      - run:
-          name: Start docker services for rpmbuild
-          command: docker-compose -f rpmbuild/docker-compose.yml up -d
-          background: true
-          no_output_timeout: 2h
-      - run:
-          name: Build Docker images (PHP 5)
-          command: docker-compose -f docker-compose.php5.yml build --no-cache --pull
-      - run:
-          name: Build RPM packages (PHP 5)
-          command: docker-compose -f docker-compose.php5.yml up
-      - run:
-          name: Upload RPM packages into Bintray
-          command: |
-            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
-              -e BINTRAY_USER=$BINTRAY_USER \
-              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
-              -e BINTRAY_REPO=$BINTRAY_REPO \
-              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos7bintray
-      - run:
-          name: refresh repositories
-          command: |
-            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
-      - run:
-          name: Build php-pecl-apcu build Docker images (PHP 5)
-          command: docker-compose -f build/docker-compose.php5.yml build --no-cache --pull
-      - run:
-          name: Upload php-pecl-apcu build Docker images (PHP 5)
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push aursu/peclbuild:7-php-apcu-5.6
   build73:
     machine:
       image: ubuntu-1604:201903-01
@@ -166,6 +116,5 @@ workflows:
   version: 2
   apcubuild:
     jobs:
-      - build73
       - build71
-      - build5
+      - build73

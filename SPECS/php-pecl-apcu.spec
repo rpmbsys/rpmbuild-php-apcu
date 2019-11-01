@@ -1,39 +1,35 @@
 # Fedora spec file for php-pecl-apcu
 #
-# Copyright (c) 2013-2015 Remi Collet
+# Copyright (c) 2013-2019 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
 # Please, preserve the changelog entries
 #
-%{!?php_inidir:  %global php_inidir  %{_sysconfdir}/php.d}
-%{!?php_incldir: %global php_incldir %{_includedir}/php}
-%{!?__pecl:      %global __pecl      %{_bindir}/pecl}
-%{!?__php:       %global __php       %{_bindir}/php}
-
 %global pecl_name apcu
 %global with_zts  0%{?__ztsphp:1}
 %global ini_name  40-%{pecl_name}.ini
 
 Name:           php-pecl-apcu
 Summary:        APC User Cache
-Version:        4.0.11
-Release:        3%{?dist}
+Version:        5.1.17
+Release:        1%{?dist}
 Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
 Source3:        %{pecl_name}.conf.php
 
 License:        PHP
-Group:          Development/Languages
 URL:            http://pecl.php.net/package/APCu
 
-BuildRequires:  php-devel
+BuildRequires:  gcc
+BuildRequires:  php-devel > 7
 BuildRequires:  php-pear
 BuildRequires:  pcre-devel
 
 Requires(post): %{__pecl}
 Requires(postun): %{__pecl}
+
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 
@@ -42,50 +38,24 @@ Provides:       php-apcu = %{version}
 Provides:       php-apcu%{?_isa} = %{version}
 Provides:       php-pecl(apcu) = %{version}
 Provides:       php-pecl(apcu)%{?_isa} = %{version}
-%if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:      php-pecl-apc
-%else
-Obsoletes:      php-pecl-apc
-%endif
-
-%if 0%{?fedora} < 20 && 0%{?rhel} < 7
-# Filter shared private
-%{?filter_provides_in: %filter_provides_in %{_libdir}/.*\.so$}
-%{?filter_setup}
-%endif
 
 
 %description
-APCu is userland caching: APC stripped of opcode caching in preparation
-for the deployment of Zend OPcache as the primary solution to opcode
-caching in future versions of PHP.
+APCu is userland caching: APC stripped of opcode caching.
 
-APCu has a revised and simplified codebase, by the time the PECL release
-is available, every part of APCu being used will have received review and
-where necessary or appropriate, changes.
+APCu only supports userland caching of variables.
 
-Simplifying and documenting the API of APCu completely removes the barrier
-to maintenance and development of APCu in the future, and additionally allows
-us to make optimizations not possible previously because of APC's inherent
-complexity.
-
-APCu only supports userland caching (and dumping) of variables, providing an
-upgrade path for the future. When O+ takes over, many will be tempted to use
-3rd party solutions to userland caching, possibly even distributed solutions;
-this would be a grave error. The tried and tested APC codebase provides far
-superior support for local storage of PHP variables.
+The %{?sub_prefix}php-pecl-apcu-bc package provides a drop
+in replacement for APC.
 
 
 %package devel
 Summary:       APCu developer files (header)
-Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
 Requires:      php-devel%{?_isa}
-%if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:     php-pecl-apc-devel
-%else
-Obsoletes:     php-pecl-apc-devel
-%endif
+Obsoletes:     php-pecl-apc-devel < 4
+Provides:      php-pecl-apc-devel = %{version}-%{release}
+Provides:      php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 These are the files needed to compile programs using APCu.
@@ -93,17 +63,13 @@ These are the files needed to compile programs using APCu.
 
 %package -n apcu-panel
 Summary:       APCu control panel
-Group:         Applications/Internet
 BuildArch:     noarch
 Requires:      %{name} = %{version}-%{release}
-Requires:      mod_php
+Requires:      php(httpd)
 Requires:      php-gd
 Requires:      httpd
-%if 0%{?fedora} < 20 && 0%{?rhel} < 7
-Conflicts:     apc-panel
-%else
-Obsoletes:     apc-panel
-%endif
+Obsoletes:     apc-panel < 4
+Provides:      apc-panel = %{version}-%{release}
 
 %description -n apcu-panel
 This package provides the APCu control panel, with Apache
@@ -113,6 +79,8 @@ configuration, available on http://localhost/apcu-panel/
 %prep
 %setup -qc
 mv %{pecl_name}-%{version} NTS
+
+sed -e '/LICENSE/s/role="doc"/role="src"/' -i package.xml
 
 cd NTS
 
@@ -137,13 +105,17 @@ sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
 %build
 cd NTS
 %{_bindir}/phpize
-%configure --with-php-config=%{_bindir}/php-config
+%configure \
+   --enable-apcu \
+   --with-php-config=%{_bindir}/php-config
 make %{?_smp_mflags}
 
 %if %{with_zts}
 cd ../ZTS
 %{_bindir}/zts-phpize
-%configure --with-php-config=%{_bindir}/zts-php-config
+%configure \
+   --enable-apcu \
+   --with-php-config=%{_bindir}/zts-php-config
 make %{?_smp_mflags}
 %endif
 
@@ -185,44 +157,42 @@ done
 
 %check
 cd NTS
-
-# Check than both extensions are reported (BC mode)
-%{_bindir}/php -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apcu'
-%{_bindir}/php -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apc$'
+%{_bindir}/php -n \
+   -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
+   -m | grep 'apcu'
 
 # Upstream test suite for NTS extension
 TEST_PHP_EXECUTABLE=%{_bindir}/php \
-TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
+TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
 NO_INTERACTION=1 \
 REPORT_EXIT_STATUS=1 \
 %{_bindir}/php -n run-tests.php
 
 %if %{with_zts}
 cd ../ZTS
-
-%{__ztsphp}    -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apcu'
-%{__ztsphp}    -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apc$'
+%{__ztsphp} -n \
+   -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so \
+   -m | grep 'apcu'
 
 # Upstream test suite for ZTS extension
 TEST_PHP_EXECUTABLE=%{__ztsphp} \
-TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
+TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so" \
 NO_INTERACTION=1 \
 REPORT_EXIT_STATUS=1 \
 %{__ztsphp} -n run-tests.php
 %endif
 
-
 %post
 %{pecl_install} %{pecl_xmldir}/%{name}.xml >/dev/null || :
-
 
 %postun
 if [ $1 -eq 0 ] ; then
     %{pecl_uninstall} %{pecl_name} >/dev/null || :
 fi
 
-
 %files
+%{!?_licensedir:%global license %%doc}
+%license NTS/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
 
@@ -253,14 +223,57 @@ fi
 
 
 %changelog
-* Fri Jul 20 2018 Alexander Ursu <alexander.ursu@gmail.com> - 4.0.11-3
-- PHP 5.6 build
+* Fri Feb  8 2019 Remi Collet <remi@remirepo.net> - 5.1.17-1
+- update to 5.1.17
 
-* Wed May 04 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-2
-- don't provide php-pecl-apc, per request #1302785
+* Mon Jul  9 2018 Remi Collet <remi@remirepo.net> - 5.1.12-1
+- update to 5.1.12 (stable)
+
+* Thu Mar  8 2018 Remi Collet <remi@remirepo.net> - 5.1.11-1
+- update to 5.1.11 (stable)
+
+* Fri Feb 16 2018 Remi Collet <remi@remirepo.net> - 5.1.10-1
+- update to 5.1.10 (stable)
+
+* Tue Jan  2 2018 Remi Collet <remi@fedoraproject.org> - 5.1.9-1
+- Update to 5.1.9 (php 7, stable)
+
+* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-4
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
+
+* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
+
+* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
+
+* Mon Jan 16 2017 Remi Collet <remi@fedoraproject.org> - 5.1.8-1
+- Update to 5.1.8 (php 7, stable)
+
+* Mon Nov 14 2016 Remi Collet <remi@fedoraproject.org> - 5.1.7-2
+- rebuild for https://fedoraproject.org/wiki/Changes/php71
+
+* Fri Oct 21 2016 Remi Collet <remi@fedoraproject.org> - 5.1.7-1
+- Update to 5.1.7 (php 7, stable)
+
+* Thu Oct  6 2016 Remi Collet <remi@fedoraproject.org> - 5.1.6-1
+- Update to 5.1.6 (php 7, stable)
+
+* Mon Jun 27 2016 Remi Collet <remi@fedoraproject.org> - 5.1.5-1
+- Update to 5.1.5 (php 7, stable)
 
 * Wed Apr 20 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-1
 - Update to 4.0.11 (stable)
+- fix license usage and spec cleanup
+
+* Wed Apr 20 2016 Remi Collet <remi@fedoraproject.org> - 4.0.10-4
+- add upstream patch, fix FTBFS with 5.6.21RC1, thanks Koschei
+
+* Wed Feb 10 2016 Remi Collet <remi@fedoraproject.org> - 4.0.10-3
+- drop scriptlets (replaced file triggers in php-pear)
+
+* Thu Feb 04 2016 Fedora Release Engineering <releng@fedoraproject.org> - 4.0.10-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_24_Mass_Rebuild
 
 * Mon Dec  7 2015 Remi Collet <remi@fedoraproject.org> - 4.0.10-1
 - Update to 4.0.10 (stable)
@@ -268,8 +281,26 @@ fi
 * Fri Nov 20 2015 Remi Collet <remi@fedoraproject.org> - 4.0.8-1
 - Update to 4.0.8
 
+* Thu Jun 18 2015 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.7-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_23_Mass_Rebuild
+
 * Mon Oct 27 2014 Remi Collet <remi@fedoraproject.org> - 4.0.7-1
 - Update to 4.0.7
+
+* Sun Aug 17 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.6-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_22_Mass_Rebuild
+
+* Thu Jun 19 2014 Remi Collet <rcollet@redhat.com> - 4.0.6-2
+- rebuild for https://fedoraproject.org/wiki/Changes/Php56
+
+* Thu Jun 12 2014 Remi Collet <remi@fedoraproject.org> - 4.0.6-1
+- Update to 4.0.6 (beta)
+
+* Sat Jun 07 2014 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 4.0.4-3
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_21_Mass_Rebuild
+
+* Wed Apr 23 2014 Remi Collet <remi@fedoraproject.org> - 4.0.4-2
+- add numerical prefix to extension configuration file
 
 * Sat Mar 01 2014 Remi Collet <remi@fedoraproject.org> - 4.0.4-1
 - Update to 4.0.4 (beta)
