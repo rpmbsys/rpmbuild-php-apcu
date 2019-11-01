@@ -1,13 +1,5 @@
 version: "3.5"
 services:
-  centos6apcu:
-    volumes:
-      - rpms:/home/centos/rpmbuild/SRPMS
-      - rpm6:/home/centos/rpmbuild/RPMS
-    build:
-      context: .
-      args:
-        centos: 6
   centos7apcu:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
@@ -25,7 +17,5 @@ services:
 volumes:
   rpms:
     name: rpms
-  rpm6:
-    name: rpm6
   rpm7:
     name: rpm7
