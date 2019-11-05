@@ -15,6 +15,25 @@ services:
       dockerfile: Dockerfile.rel
       network: buildnet
     image: aursu/peclbuild:7-php7-apcu-7.1
+  centos8apcuphp7build:
+    networks:
+      - buildnet
+    build:
+      context: .
+      args:
+        centos: 8
+      network: buildnet
+    image: aursu/peclbuild:8-php-apcu-7.1
+  centos8apcuphp7buildrel:
+    networks:
+      - buildnet
+    build:
+      context: .
+      args:
+        centos: 8
+      dockerfile: Dockerfile.rel
+      network: buildnet
+    image: aursu/peclbuild:8-php7-apcu-7.1
 
 networks:
   buildnet:

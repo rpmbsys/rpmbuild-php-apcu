@@ -6,8 +6,8 @@ FROM aursu/pearbuild:${centos}-${image}
 # PHP 7.3 build image based on pcre2-devel
 RUN yum -y install \
         pcre-devel \
-    && yum clean all && rm -rf /var/cache/yum
+    && yum clean all && rm -rf /var/cache/yum /var/cache/dnf
 
 RUN yum -y --disablerepo=* --enablerepo=custom install \
         php-pecl-apcu-devel \
-    && yum clean all && rm -rf /var/cache/yum
+    && yum clean all && rm -rf /var/cache/yum /var/cache/dnf
