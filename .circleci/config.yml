@@ -50,7 +50,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos8refresh
       - run:
           name: Build php-pecl-apcu build Docker images (PHP 7.1)
-          command: docker-compose -f build/docker-compose.yml build --no-cache --pull
+          command: docker-compose -f build/php71/docker-compose.yml build --no-cache --pull
       - run:
           name: Build php-pecl-apcu build Docker images (PHP 7.1)
           command: |
@@ -109,7 +109,7 @@ jobs:
             docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos8refresh
       - run:
           name: Build php-pecl-apcu build Docker images (PHP 7.3)
-          command: docker-compose -f build/docker-compose.php73.yml build --no-cache --pull
+          command: docker-compose -f build/php73/docker-compose.yml build --no-cache --pull
       - run:
           name: Upload php-pecl-apcu build Docker images (PHP 7.3)
           command: |
