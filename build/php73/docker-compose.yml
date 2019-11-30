@@ -1,0 +1,12 @@
+version: "3.5"
+services:
+  centos7apcuphp73build:
+    build:
+      context: .
+    image: aursu/peclbuild:7-php-apcu-7.3
+  centos8apcuphp73build:
+    build:
+      context: .
+      args:
+        centos: 8
+    image: aursu/peclbuild:8-php-apcu-7.3
