@@ -1,23 +1,14 @@
 version: "3.5"
 services:
   centos7apcuphp74build:
-    networks:
-      - buildnet
     build:
-      network: buildnet
-      context: .
-    image: aursu/peclbuild:7-php-apcu-7.4
-  centos8apcuphp74build:
-    networks:
-      - buildnet
-    build:
-      network: buildnet
       context: .
       args:
-        centos: 8
-    image: aursu/peclbuild:8-php-apcu-7.4
-
-networks:
-  buildnet:
-    external: true
-    name: buildnet
+        centos: $OS7
+    image: aursu/peclbuild:${OS7TAG}-php-apcu-7.4
+  centos8apcuphp74build:
+    build:
+      context: .
+      args:
+        centos: $OS8
+    image: aursu/peclbuild:${OS8TAG}-php-apcu-7.4

@@ -1,41 +1,28 @@
 version: "3.5"
 services:
   centos7apcuphp7build:
-    networks:
-      - buildnet
     build:
-      network: buildnet
       context: .
-    image: aursu/peclbuild:7-php-apcu-7.1
+      args:
+        centos: $OS7
+    image: aursu/peclbuild:${OS7TAG}-php-apcu-7.1
   centos7apcuphp7buildrel:
-    networks:
-      - buildnet
     build:
-      network: buildnet
       context: .
       dockerfile: Dockerfile.rel
-    image: aursu/peclbuild:7-php7-apcu-7.1
+      args:
+        centos: $OS7
+    image: aursu/peclbuild:${OS7TAG}-php7-apcu-7.1
   centos8apcuphp7build:
-    networks:
-      - buildnet
     build:
-      network: buildnet
       context: .
       args:
-        centos: 8
-    image: aursu/peclbuild:8-php-apcu-7.1
+        centos: $OS8
+    image: aursu/peclbuild:${OS8TAG}-php-apcu-7.1
   centos8apcuphp7buildrel:
-    networks:
-      - buildnet
     build:
-      network: buildnet
       context: .
-      args:
-        centos: 8
       dockerfile: Dockerfile.rel
-    image: aursu/peclbuild:8-php7-apcu-7.1
-
-networks:
-  buildnet:
-    external: true
-    name: buildnet
+      args:
+        centos: $OS8
+    image: aursu/peclbuild:${OS8TAG}-php7-apcu-7.1
