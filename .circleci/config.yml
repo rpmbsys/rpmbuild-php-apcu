@@ -4,7 +4,7 @@ orbs:
   docker-rpmbuild: aursu/rpmbuild@1.1.0
 
 workflows:
-  php74build:
+  apcubuild:
     jobs:
       - docker-rpmbuild/build:
           name: centos7apcu
