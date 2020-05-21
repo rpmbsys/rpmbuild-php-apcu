@@ -1,125 +1,93 @@
-version: 2
-jobs:
-  build:
-    machine:
-      image: ubuntu-1604:201903-01
-    environment:
-      BINTRAY_REPO: php71custom
-      PACKAGE_VCS_URL: https://github.com/aursu/rpmbuild-php-apcu
-    steps:
-      - checkout
-      - run:
-          name: Git submodules sync
-          command: |
-            git submodule sync
-            git submodule update --init
-      - run:
-          name: Pull images for RPM build docker services
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml pull
-            docker-compose -f rpmbuild/docker-compose.bintray.yml pull
-            docker-compose -f rpmbuild/docker-compose.refresh.yml pull
-      - run:
-          name: Start docker services for rpmbuild
-          command: docker-compose -f rpmbuild/docker-compose.yml up -d
-          background: true
-          no_output_timeout: 2h
-      - run:
-          name: Build Docker images
-          command: docker-compose build --no-cache --pull
-      - run:
-          name: Build RPM packages
-          command: docker-compose up
-      - run:
-          name: Upload RPM packages into Bintray
-          command: |
-            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
-              -e BINTRAY_USER=$BINTRAY_USER \
-              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
-              -e BINTRAY_REPO=$BINTRAY_REPO \
-              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos7bintray
-            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
-              -e BINTRAY_USER=$BINTRAY_USER \
-              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
-              -e BINTRAY_REPO=$BINTRAY_REPO \
-              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos8bintray
-      - run:
-          name: refresh repositories
-          command: |
-            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
-            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos8refresh
-      - run:
-          name: Build php-pecl-apcu build Docker images (PHP 7.1)
-          command: docker-compose -f build/php71/docker-compose.yml build --no-cache --pull
-      - run:
-          name: Build php-pecl-apcu build Docker images (PHP 7.1)
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push aursu/peclbuild:7-php-apcu-7.1
-            docker push aursu/peclbuild:7-php7-apcu-7.1
-            docker push aursu/peclbuild:8-php-apcu-7.1
-            docker push aursu/peclbuild:8-php7-apcu-7.1
-  build73:
-    machine:
-      image: ubuntu-1604:201903-01
-    environment:
-      BINTRAY_REPO: php73custom
-      PACKAGE_VCS_URL: https://github.com/aursu/rpmbuild-php-apcu
-    steps:
-      - checkout
-      - run:
-          name: Git submodules sync
-          command: |
-            git submodule sync
-            git submodule update --init
-      - run:
-          name: Pull images for RPM build docker services
-          command: |
-            docker-compose -f rpmbuild/docker-compose.yml pull
-            docker-compose -f rpmbuild/docker-compose.bintray.yml pull
-            docker-compose -f rpmbuild/docker-compose.refresh.yml pull
-      - run:
-          name: Start docker services for rpmbuild
-          command: docker-compose -f rpmbuild/docker-compose.yml up -d
-          background: true
-          no_output_timeout: 2h
-      - run:
-          name: Build Docker images (PHP 7.3)
-          command: docker-compose -f docker-compose.php73.yml build --no-cache --pull
-      - run:
-          name: Build RPM packages (PHP 7.3)
-          command: docker-compose -f docker-compose.php73.yml up
-      - run:
-          name: Upload RPM packages into Bintray
-          command: |
-            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
-              -e BINTRAY_USER=$BINTRAY_USER \
-              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
-              -e BINTRAY_REPO=$BINTRAY_REPO \
-              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos7bintray
-            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
-              -e BINTRAY_USER=$BINTRAY_USER \
-              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
-              -e BINTRAY_REPO=$BINTRAY_REPO \
-              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos8bintray
-      - run:
-          name: refresh repositories
-          command: |
-            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos7refresh
-            docker-compose -f rpmbuild/docker-compose.refresh.yml run --rm centos8refresh
-      - run:
-          name: Build php-pecl-apcu build Docker images (PHP 7.3)
-          command: docker-compose -f build/php73/docker-compose.yml build --no-cache --pull
-      - run:
-          name: Upload php-pecl-apcu build Docker images (PHP 7.3)
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push aursu/peclbuild:7-php-apcu-7.3
-            docker push aursu/peclbuild:8-php-apcu-7.3
+version: 2.1
+
+orbs:
+  docker-rpmbuild: aursu/rpmbuild@1.1.0
 
 workflows:
-  version: 2
-  apcubuild:
+  php74build:
     jobs:
-      - build
-      - build73
+      - docker-rpmbuild/build:
+          name: centos7apcu
+          build_service: centos7apcu
+          bintray_uploader: centos7bintray
+      - docker-rpmbuild/build:
+          name: centos7apcurel
+          build_service: centos7apcurel
+          bintray_uploader: centos7bintray
+      - docker-rpmbuild/build:
+          name: centos8apcu
+          build_service: centos8apcu
+          bintray_uploader: centos8bintray
+      - docker-rpmbuild/build:
+          name: centos8apcurel
+          build_service: centos8apcurel
+          bintray_uploader: centos8bintray
+      - docker-rpmbuild/build:
+          name: centos7apcuphp73
+          build_file: docker-compose.php73.yml
+          build_service: centos7apcuphp73
+          bintray_uploader: centos7bintray
+      - docker-rpmbuild/build:
+          name: centos8apcuphp73
+          build_file: docker-compose.php73.yml
+          build_service: centos8apcuphp73
+          bintray_uploader: centos8bintray
+      - docker-rpmbuild/build:
+          name: centos7apcuphp74
+          build_file: docker-compose.php74.yml
+          build_service: centos7apcuphp74
+          bintray_uploader: centos7bintray
+      - docker-rpmbuild/build:
+          name: centos8apcuphp74
+          build_file: docker-compose.php74.yml
+          build_service: centos8apcuphp74
+          bintray_uploader: centos8bintray
+      - docker-rpmbuild/image:
+          name: centos7apcuphp7build
+          compose_file: build/php71/docker-compose.yml
+          build_service: centos7apcuphp7build
+          requires:
+            - centos7apcu
+      - docker-rpmbuild/image:
+          name: centos7apcuphp7buildrel
+          compose_file: build/php71/docker-compose.yml
+          build_service: centos7apcuphp7buildrel
+          requires:
+            - centos7apcurel
+      - docker-rpmbuild/image:
+          name: centos8apcuphp7build
+          compose_file: build/php71/docker-compose.yml
+          build_service: centos8apcuphp7build
+          requires:
+            - centos8apcu
+      - docker-rpmbuild/image:
+          name: centos8apcuphp7buildrel
+          compose_file: build/php71/docker-compose.yml
+          build_service: centos8apcuphp7buildrel
+          requires:
+            - centos8apcurel
+      - docker-rpmbuild/image:
+          name: centos7apcuphp73build
+          compose_file: build/php73/docker-compose.yml
+          build_service: centos7apcuphp73build
+          requires:
+            - centos7apcuphp73
+      - docker-rpmbuild/image:
+          name: centos8apcuphp73build
+          compose_file: build/php73/docker-compose.yml
+          build_service: centos8apcuphp73build
+          requires:
+            - centos8apcuphp73
+      - docker-rpmbuild/image:
+          name: centos7apcuphp74build
+          compose_file: build/php74/docker-compose.yml
+          build_service: centos7apcuphp74build
+          requires:
+            - centos7apcuphp74
+      - docker-rpmbuild/image:
+          name: centos8apcuphp74build
+          compose_file: build/php74/docker-compose.yml
+          build_service: centos8apcuphp74build
+          requires:
+            - centos8apcuphp74
+
