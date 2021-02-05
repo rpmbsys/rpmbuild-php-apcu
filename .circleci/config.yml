@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  docker-rpmbuild: aursu/rpmbuild@1.1.0
+  docker-rpmbuild: aursu/rpmbuild@1.1.1
 
 workflows:
   apcubuild:
@@ -11,16 +11,8 @@ workflows:
           build_service: centos7apcu
           bintray_uploader: centos7bintray
       - docker-rpmbuild/build:
-          name: centos7apcurel
-          build_service: centos7apcurel
-          bintray_uploader: centos7bintray
-      - docker-rpmbuild/build:
           name: centos8apcu
           build_service: centos8apcu
-          bintray_uploader: centos8bintray
-      - docker-rpmbuild/build:
-          name: centos8apcurel
-          build_service: centos8apcurel
           bintray_uploader: centos8bintray
       - docker-rpmbuild/build:
           name: centos7apcuphp73
@@ -33,39 +25,27 @@ workflows:
           build_service: centos8apcuphp73
           bintray_uploader: centos8bintray
       - docker-rpmbuild/build:
-          name: centos7apcuphp74
-          build_file: docker-compose.php74.yml
-          build_service: centos7apcuphp74
+          name: centos7apcuphp80
+          build_file: docker-compose.php80.yml
+          build_service: centos7apcuphp80
           bintray_uploader: centos7bintray
       - docker-rpmbuild/build:
-          name: centos8apcuphp74
-          build_file: docker-compose.php74.yml
-          build_service: centos8apcuphp74
+          name: centos8apcuphp80
+          build_file: docker-compose.php80.yml
+          build_service: centos8apcuphp80
           bintray_uploader: centos8bintray
       - docker-rpmbuild/image:
-          name: centos7apcuphp7build
-          compose_file: build/php71/docker-compose.yml
-          build_service: centos7apcuphp7build
+          name: centos7apcuphp74build
+          compose_file: build/php74/docker-compose.yml
+          build_service: centos7apcuphp74build
           requires:
             - centos7apcu
       - docker-rpmbuild/image:
-          name: centos7apcuphp7buildrel
-          compose_file: build/php71/docker-compose.yml
-          build_service: centos7apcuphp7buildrel
-          requires:
-            - centos7apcurel
-      - docker-rpmbuild/image:
-          name: centos8apcuphp7build
-          compose_file: build/php71/docker-compose.yml
-          build_service: centos8apcuphp7build
+          name: centos8apcuphp74build
+          compose_file: build/php74/docker-compose.yml
+          build_service: centos8apcuphp74build
           requires:
             - centos8apcu
-      - docker-rpmbuild/image:
-          name: centos8apcuphp7buildrel
-          compose_file: build/php71/docker-compose.yml
-          build_service: centos8apcuphp7buildrel
-          requires:
-            - centos8apcurel
       - docker-rpmbuild/image:
           name: centos7apcuphp73build
           compose_file: build/php73/docker-compose.yml
@@ -79,15 +59,15 @@ workflows:
           requires:
             - centos8apcuphp73
       - docker-rpmbuild/image:
-          name: centos7apcuphp74build
-          compose_file: build/php74/docker-compose.yml
-          build_service: centos7apcuphp74build
+          name: centos7apcuphp80build
+          compose_file: build/php80/docker-compose.yml
+          build_service: centos7apcuphp80build
           requires:
-            - centos7apcuphp74
+            - centos7apcuphp80
       - docker-rpmbuild/image:
-          name: centos8apcuphp74build
-          compose_file: build/php74/docker-compose.yml
-          build_service: centos8apcuphp74build
+          name: centos8apcuphp80build
+          compose_file: build/php80/docker-compose.yml
+          build_service: centos8apcuphp80build
           requires:
-            - centos8apcuphp74
+            - centos8apcuphp80
 

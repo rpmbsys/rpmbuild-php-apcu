@@ -1,0 +1,49 @@
+version: "3.5"
+services:
+  centos7apcu:
+    volumes:
+      - rpms:/home/centos/rpmbuild/SRPMS
+      - rpm7:/home/centos/rpmbuild/RPMS
+    build:
+      context: .
+      args:
+        centos: 7.9.2009
+        image: php-7.1
+  centos7apcurel:
+    volumes:
+      - rpms:/home/centos/rpmbuild/SRPMS
+      - rpm7:/home/centos/rpmbuild/RPMS
+    build:
+      context: .
+      dockerfile: Dockerfile.rel
+      args:
+        centos: 7.9.2009
+        image: php-7.1
+  centos8apcu:
+    volumes:
+      - rpms:/home/centos/rpmbuild/SRPMS
+      - rpm8:/home/centos/rpmbuild/RPMS
+    build:
+      context: .
+      args:
+        centos: 8.2.2004
+        image: php7-7.1
+  centos8apcurel:
+    volumes:
+      - rpms:/home/centos/rpmbuild/SRPMS
+      - rpm8:/home/centos/rpmbuild/RPMS
+    build:
+      context: .
+      dockerfile: Dockerfile.rel
+      args:
+        centos: 8.2.2004
+        image: php7-7.1
+
+
+volumes:
+  rpms:
+    name: rpms
+  rpm7:
+    name: rpm7
+  rpm8:
+    name: rpm8
