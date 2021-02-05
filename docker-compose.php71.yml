@@ -1,15 +1,15 @@
 version: "3.5"
 services:
-  centos7apcu:
+  centos7apcu71:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm7:/home/centos/rpmbuild/RPMS
     build:
       context: .
       args:
-        centos: 7.9.2009
+        centos: 7.8.2003
         image: php-7.1
-  centos7apcurel:
+  centos7apcu71rel:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm7:/home/centos/rpmbuild/RPMS
@@ -17,9 +17,9 @@ services:
       context: .
       dockerfile: Dockerfile.rel
       args:
-        centos: 7.9.2009
+        centos: 7.8.2003
         image: php-7.1
-  centos8apcu:
+  centos8apcu71:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm8:/home/centos/rpmbuild/RPMS
@@ -28,7 +28,7 @@ services:
       args:
         centos: 8.2.2004
         image: php7-7.1
-  centos8apcurel:
+  centos8apcu71rel:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm8:/home/centos/rpmbuild/RPMS
