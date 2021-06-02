@@ -43,6 +43,8 @@ jobs:
       UPLOADER: ${{ matrix.uploader }}
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - run: docker-compose -f $BUILD_COMPOSE_FILE build --no-cache $BUILD
       - run: docker-compose -f $BUILD_COMPOSE_FILE up --exit-code-from $BUILD $BUILD
       - run: docker-compose -f rpmbuild/docker-compose.bintray.yml pull $UPLOADER
@@ -55,6 +57,8 @@ jobs:
         compose-file: [build/php74/docker-compose.yml, build/php73/docker-compose.yml, build/php80/docker-compose.yml]
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - run: docker-compose -f ${{ matrix.compose-file }} build --no-cache --pull
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASS
       - run: docker-compose -f ${{ matrix.compose-file }} push
