@@ -3,10 +3,6 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
-    env:
-      ARTIFACTORY_URL: https://rpmb.jfrog.io
-      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-      BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
     strategy:
       matrix:
         include:
@@ -35,6 +31,9 @@ jobs:
             build: centos8apcuphp80
             uploader: centos8bintray
     env:
+      ARTIFACTORY_URL: https://rpmb.jfrog.io
+      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+      BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
       BUILD_COMPOSE_FILE: ${{ matrix.compose-file }}
       BINTRAY_REPO: ${{ matrix.repo }}
       BUILD: ${{ matrix.build }}
