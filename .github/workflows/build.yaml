@@ -1,5 +1,11 @@
 name: RPM build
 on: [push]
+env:
+  ARTIFACTORY_URL: https://rpmb.jfrog.io
+  BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
+  BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
+  DOCKER_USER: ${{ secrets.DOCKER_USER }}
+  DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -31,9 +37,6 @@ jobs:
             build: centos8apcuphp80
             uploader: centos8bintray
     env:
-      ARTIFACTORY_URL: https://rpmb.jfrog.io
-      BINTRAY_USER: ${{ secrets.BINTRAY_USER }}
-      BINTRAY_API_KEY: ${{ secrets.BINTRAY_API_KEY }}
       BUILD_COMPOSE_FILE: ${{ matrix.compose-file }}
       BINTRAY_REPO: ${{ matrix.repo }}
       BUILD: ${{ matrix.build }}
@@ -45,12 +48,10 @@ jobs:
       - run: docker-compose -f rpmbuild/docker-compose.bintray.yml pull $UPLOADER
       - run: docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm -e BINTRAY_USER=$BINTRAY_USER -e BINTRAY_API_KEY=$BINTRAY_API_KEY -e BINTRAY_REPO=$BINTRAY_REPO -e ARTIFACTORY_URL=$ARTIFACTORY_URL $UPLOADER
   docker:
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         compose-file: [build/php74/docker-compose.yml, build/php73/docker-compose.yml, build/php80/docker-compose.yml]
-    env:
-      DOCKER_USER: ${{ secrets.DOCKER_USER }}
-      DOCKER_PASS: ${{ secrets.DOCKER_PASS }}
     steps:
       - uses: actions/checkout@v2
       - run: docker-compose -f ${{ matrix.compose-file }} build --no-cache --pull
