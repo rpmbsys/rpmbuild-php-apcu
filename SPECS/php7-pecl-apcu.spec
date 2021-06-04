@@ -9,6 +9,9 @@
 %global pecl_name apcu
 %global ini_name  40-%{pecl_name}.ini
 
+%define _debugsource_template %{nil}
+%define debug_package %{nil}
+
 Name:           php7-pecl-apcu
 Summary:        APC User Cache
 Version:        5.1.20
