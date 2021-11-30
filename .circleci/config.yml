@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  docker-rpmbuild: aursu/rpmbuild@1.1.7
+  docker-rpmbuild: aursu/rpmbuild@1.1.8
 
 parameters:
   artifactory-url:
@@ -21,14 +21,14 @@ workflows:
           build_service: centos8apcu
           bintray_uploader: centos8bintray
       - docker-rpmbuild/build:
-          name: centos7apcuphp73
-          build_file: docker-compose.php73.yml
-          build_service: centos7apcuphp73
+          name: centos7apcuphp81
+          build_file: docker-compose.php81.yml
+          build_service: centos7apcuphp81
           bintray_uploader: centos7bintray
       - docker-rpmbuild/build:
-          name: centos8apcuphp73
-          build_file: docker-compose.php73.yml
-          build_service: centos8apcuphp73
+          name: centos8apcuphp81
+          build_file: docker-compose.php81.yml
+          build_service: centos8apcuphp81
           bintray_uploader: centos8bintray
       - docker-rpmbuild/build:
           name: centos7apcuphp80
@@ -53,17 +53,17 @@ workflows:
           requires:
             - centos8apcu
       - docker-rpmbuild/image:
-          name: centos7apcuphp73build
-          compose_file: build/php73/docker-compose.yml
-          build_service: centos7apcuphp73build
+          name: centos7apcuphp81build
+          compose_file: build/php81/docker-compose.yml
+          build_service: centos7apcuphp81build
           requires:
-            - centos7apcuphp73
+            - centos7apcuphp81
       - docker-rpmbuild/image:
-          name: centos8apcuphp73build
-          compose_file: build/php73/docker-compose.yml
-          build_service: centos8apcuphp73build
+          name: centos8apcuphp81build
+          compose_file: build/php81/docker-compose.yml
+          build_service: centos8apcuphp81build
           requires:
-            - centos8apcuphp73
+            - centos8apcuphp81
       - docker-rpmbuild/image:
           name: centos7apcuphp80build
           compose_file: build/php80/docker-compose.yml
