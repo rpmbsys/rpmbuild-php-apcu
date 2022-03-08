@@ -1,4 +1,4 @@
-version: "3.5"
+version: "3"
 services:
   centos7apcuphp74build:
     build:
@@ -6,7 +6,7 @@ services:
       args:
         centos: $OS7
     image: aursu/peclbuild:${OS7TAG}-php-apcu-7.4
-  centos8apcuphp74build:
+  stream8apcuphp74build:
     build:
       context: .
       args:

@@ -17,19 +17,19 @@ workflows:
           build_service: centos7apcu
           bintray_uploader: centos7bintray
       - docker-rpmbuild/build:
-          name: centos8apcu
-          build_service: centos8apcu
-          bintray_uploader: centos8bintray
+          name: stream8apcu
+          build_service: stream8apcu
+          bintray_uploader: stream8bintray
       - docker-rpmbuild/build:
           name: centos7apcuphp81
           build_file: docker-compose.php81.yml
           build_service: centos7apcuphp81
           bintray_uploader: centos7bintray
       - docker-rpmbuild/build:
-          name: centos8apcuphp81
+          name: stream8apcuphp81
           build_file: docker-compose.php81.yml
-          build_service: centos8apcuphp81
-          bintray_uploader: centos8bintray
+          build_service: stream8apcuphp81
+          bintray_uploader: stream8bintray
       - docker-rpmbuild/image:
           name: centos7apcuphp74build
           compose_file: build/php74/docker-compose.yml
@@ -37,11 +37,11 @@ workflows:
           requires:
             - centos7apcu
       - docker-rpmbuild/image:
-          name: centos8apcuphp74build
+          name: stream8apcuphp74build
           compose_file: build/php74/docker-compose.yml
-          build_service: centos8apcuphp74build
+          build_service: stream8apcuphp74build
           requires:
-            - centos8apcu
+            - stream8apcu
       - docker-rpmbuild/image:
           name: centos7apcuphp81build
           compose_file: build/php81/docker-compose.yml
@@ -49,8 +49,8 @@ workflows:
           requires:
             - centos7apcuphp81
       - docker-rpmbuild/image:
-          name: centos8apcuphp81build
+          name: stream8apcuphp81build
           compose_file: build/php81/docker-compose.yml
-          build_service: centos8apcuphp81build
+          build_service: stream8apcuphp81build
           requires:
-            - centos8apcuphp81
+            - stream8apcuphp81
