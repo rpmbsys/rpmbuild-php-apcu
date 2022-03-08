@@ -30,16 +30,6 @@ workflows:
           build_file: docker-compose.php81.yml
           build_service: centos8apcuphp81
           bintray_uploader: centos8bintray
-      - docker-rpmbuild/build:
-          name: centos7apcuphp80
-          build_file: docker-compose.php80.yml
-          build_service: centos7apcuphp80
-          bintray_uploader: centos7bintray
-      - docker-rpmbuild/build:
-          name: centos8apcuphp80
-          build_file: docker-compose.php80.yml
-          build_service: centos8apcuphp80
-          bintray_uploader: centos8bintray
       - docker-rpmbuild/image:
           name: centos7apcuphp74build
           compose_file: build/php74/docker-compose.yml
@@ -64,16 +54,3 @@ workflows:
           build_service: centos8apcuphp81build
           requires:
             - centos8apcuphp81
-      - docker-rpmbuild/image:
-          name: centos7apcuphp80build
-          compose_file: build/php80/docker-compose.yml
-          build_service: centos7apcuphp80build
-          requires:
-            - centos7apcuphp80
-      - docker-rpmbuild/image:
-          name: centos8apcuphp80build
-          compose_file: build/php80/docker-compose.yml
-          build_service: centos8apcuphp80build
-          requires:
-            - centos8apcuphp80
-

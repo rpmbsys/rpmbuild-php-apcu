@@ -32,14 +32,6 @@ jobs:
             repo: php81custom
             build: centos8apcuphp81
             uploader: centos8bintray
-          - compose-file: docker-compose.php80.yml
-            repo: php8custom
-            build: centos7apcuphp80
-            uploader: centos7bintray
-          - compose-file: docker-compose.php80.yml
-            repo: php8custom
-            build: centos8apcuphp80
-            uploader: centos8bintray
     env:
       BUILD_COMPOSE_FILE: ${{ matrix.compose-file }}
       BINTRAY_REPO: ${{ matrix.repo }}
@@ -58,7 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        compose-file: [build/php74/docker-compose.yml, build/php81/docker-compose.yml, build/php80/docker-compose.yml]
+        compose-file: [build/php74/docker-compose.yml, build/php81/docker-compose.yml]
     steps:
       - uses: actions/checkout@v2
         with:
