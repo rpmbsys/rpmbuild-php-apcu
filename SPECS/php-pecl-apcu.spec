@@ -1,6 +1,6 @@
 # Fedora spec file for php-pecl-apcu
 #
-# Copyright (c) 2013-2021 Remi Collet
+# Copyright (c) 2013-2022 Remi Collet
 # License: CC-BY-SA
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
@@ -180,9 +180,7 @@ cd ../ZTS
 # Upstream test suite for ZTS extension
 TEST_PHP_EXECUTABLE=%{__ztsphp} \
 TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{__ztsphp} -n run-tests.php
+%{__ztsphp} -n run-tests.php -q --show-diff
 %endif
 
 %post
@@ -226,6 +224,9 @@ fi
 
 
 %changelog
+* Mon Sep 19 2022 Remi Collet <remi@remirepo.net> - 5.1.22-1
+- update to 5.1.22
+
 * Thu Oct  7 2021 Remi Collet <remi@remirepo.net> - 5.1.21-1
 - update to 5.1.21
 
