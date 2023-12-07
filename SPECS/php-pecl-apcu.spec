@@ -1,7 +1,7 @@
 # Fedora spec file for php-pecl-apcu
 #
-# Copyright (c) 2013-2022 Remi Collet
-# License: CC-BY-SA
+# Copyright (c) 2013-2023 Remi Collet
+# License: CC-BY-SA-4.0
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
 # Please, preserve the changelog entries
@@ -9,15 +9,16 @@
 %global pecl_name apcu
 %global with_zts  0%{?__ztsphp:1}
 %global ini_name  40-%{pecl_name}.ini
+%global sources    %{pecl_name}-%{version}
 
 %define _debugsource_template %{nil}
 %define debug_package %{nil}
 
 Name:           php-pecl-apcu
 Summary:        APC User Cache
-Version:        5.1.22
+Version:        5.1.23
 Release:        1%{?dist}
-Source0:        https://pecl.php.net/get/%{pecl_name}-%{version}.tgz
+Source0:        https://pecl.php.net/get/%{sources}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
 Source3:        %{pecl_name}.conf.php
@@ -28,7 +29,6 @@ URL:            https://pecl.php.net/package/APCu
 BuildRequires:  gcc
 BuildRequires:  php-devel
 BuildRequires:  php-pear
-BuildRequires:  pcre-devel
 
 Requires(post): %{__pecl}
 Requires(postun): %{__pecl}
@@ -224,6 +224,9 @@ fi
 
 
 %changelog
+* Mon Nov 13 2023 Remi Collet <remi@remirepo.net> - 5.1.23-1
+- update to 5.1.23
+
 * Mon Sep 19 2022 Remi Collet <remi@remirepo.net> - 5.1.22-1
 - update to 5.1.22
 
