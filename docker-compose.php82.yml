@@ -17,7 +17,7 @@ services:
         image: php-8.2
 
 volumes:
-  rpm8rocky:
-    name: rpm8rocky
+  rpm10rocky:
+    name: rpm10rocky
   rpm9rocky:
     name: rpm9rocky

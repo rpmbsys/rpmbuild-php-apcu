@@ -1,19 +1,13 @@
 services:
-  rocky8build:
+  rocky10build:
     build:
       context: .
       args:
-        os: $RL8
-    image: aursu/peclbuild:${RL8TAG}-php-apcu-8.2
+        os: $RL10
+    image: aursu/peclbuild:${RL10TAG}-php-apcu-8.2
   rocky9build:
     build:
       context: .
       args:
         os: $RL9
     image: aursu/peclbuild:${RL9TAG}-php-apcu-8.2
-  stream9build:
-    build:
-      context: .
-      args:
-        os: $OS9
-    image: aursu/peclbuild:${OS9TAG}-php-apcu-8.2
