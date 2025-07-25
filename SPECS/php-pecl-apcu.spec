@@ -1,37 +1,39 @@
 # Fedora spec file for php-pecl-apcu
 #
-# Copyright (c) 2013-2023 Remi Collet
+# Copyright (c) 2013-2024 Remi Collet
 # License: CC-BY-SA-4.0
 # http://creativecommons.org/licenses/by-sa/4.0/
 #
 # Please, preserve the changelog entries
 #
-%global pecl_name apcu
-%global with_zts  0%{?__ztsphp:1}
-%global ini_name  40-%{pecl_name}.ini
+%global pecl_name  apcu
+%global with_zts   0%{?__ztsphp:1}
+%global ini_name   40-%{pecl_name}.ini
 %global sources    %{pecl_name}-%{version}
+
 
 %define _debugsource_template %{nil}
 %define debug_package %{nil}
+%global _configure ../%{sources}/configure
 
 Name:           php-pecl-apcu
 Summary:        APC User Cache
-Version:        5.1.23
+Version:        5.1.24
 Release:        1%{?dist}
 Source0:        https://pecl.php.net/get/%{sources}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
 Source3:        %{pecl_name}.conf.php
 
-License:        PHP
+License:        PHP-3.01
 URL:            https://pecl.php.net/package/APCu
 
+ExcludeArch:    %{ix86}
+
+BuildRequires:  make
 BuildRequires:  gcc
 BuildRequires:  php-devel
 BuildRequires:  php-pear
-
-Requires(post): %{__pecl}
-Requires(postun): %{__pecl}
 
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
@@ -81,12 +83,10 @@ configuration, available on http://localhost/apcu-panel/
 
 %prep
 %setup -qc
-mv %{pecl_name}-%{version} NTS
 
 sed -e '/LICENSE/s/role="doc"/role="src"/' -i package.xml
 
-cd NTS
-
+cd %{sources}
 # Sanity check, really often broken
 extver=$(sed -n '/#define PHP_APCU_VERSION/{s/.* "//;s/".*$//;p}' php_apc.h)
 if test "x${extver}" != "x%{version}"; then
@@ -95,42 +95,44 @@ if test "x${extver}" != "x%{version}"; then
 fi
 cd ..
 
+mkdir NTS
 %if %{with_zts}
-# duplicate for ZTS build
-cp -pr NTS ZTS
+mkdir ZTS
 %endif
 
 # Fix path to configuration file
 sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
-    -i  NTS/apc.php
+    -i  %{sources}/apc.php
 
 
 %build
-cd NTS
-%{_bindir}/phpize
+cd %{sources}
+%{__phpize}
+sed -e 's/INSTALL_ROOT/DESTDIR/' -i build/Makefile.global
+
+cd ../NTS
 %configure \
    --enable-apcu \
-   --with-php-config=%{_bindir}/php-config
-make %{?_smp_mflags}
+   --with-php-config=%{__phpconfig}
+%make_build
 
 %if %{with_zts}
 cd ../ZTS
-%{_bindir}/zts-phpize
 %configure \
    --enable-apcu \
-   --with-php-config=%{_bindir}/zts-php-config
-make %{?_smp_mflags}
+   --with-php-config=%{__ztsphpconfig}
+%make_build
 %endif
 
 
 %install
 # Install the NTS stuff
-make -C NTS install INSTALL_ROOT=%{buildroot}
+%make_install -C NTS
 install -D -m 644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
 %if %{with_zts}
 # Install the ZTS stuff
-make -C ZTS install INSTALL_ROOT=%{buildroot}
+%make_install -C ZTS
 install -D -m 644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
 %endif
 
@@ -139,7 +141,7 @@ install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
 
 # Install the Control Panel
 # Pages
-install -D -m 644 -p NTS/apc.php  \
+install -D -m 644 -p %{sources}/apc.php  \
         %{buildroot}%{_datadir}/apcu-panel/index.php
 # Apache config
 install -D -m 644 -p %{SOURCE2} \
@@ -149,7 +151,7 @@ install -D -m 644 -p %{SOURCE3} \
         %{buildroot}%{_sysconfdir}/apcu-panel/conf.php
 
 # Test & Documentation
-cd NTS
+cd %{sources}
 for i in $(grep 'role="test"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
 do install -Dpm 644 $i %{buildroot}%{pecl_testdir}/%{pecl_name}/$i
 done
@@ -159,23 +161,20 @@ done
 
 
 %check
-cd NTS
-%{_bindir}/php -n \
+cd %{sources}
+%{__php} -n \
    -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
-   -m | grep 'apcu'
+   -m | grep '^apcu$'
 
 # Upstream test suite for NTS extension
-TEST_PHP_EXECUTABLE=%{_bindir}/php \
+TEST_PHP_EXECUTABLE=%{__php} \
 TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
-NO_INTERACTION=1 \
-REPORT_EXIT_STATUS=1 \
-%{_bindir}/php -n run-tests.php
+%{__php} -n run-tests.php -q --show-diff
 
 %if %{with_zts}
-cd ../ZTS
 %{__ztsphp} -n \
    -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so \
-   -m | grep 'apcu'
+   -m | grep '^apcu$'
 
 # Upstream test suite for ZTS extension
 TEST_PHP_EXECUTABLE=%{__ztsphp} \
@@ -183,17 +182,9 @@ TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_ztsextdir}/%{pecl_name}.so" \
 %{__ztsphp} -n run-tests.php -q --show-diff
 %endif
 
-%post
-%{pecl_install} %{pecl_xmldir}/%{name}.xml >/dev/null || :
-
-%postun
-if [ $1 -eq 0 ] ; then
-    %{pecl_uninstall} %{pecl_name} >/dev/null || :
-fi
 
 %files
-%{!?_licensedir:%global license %%doc}
-%license NTS/LICENSE
+%license %{sources}/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
 
@@ -224,6 +215,9 @@ fi
 
 
 %changelog
+* Mon Sep 23 2024 Remi Collet <remi@remirepo.net> - 5.1.24-1
+- update to 5.1.24
+
 * Mon Nov 13 2023 Remi Collet <remi@remirepo.net> - 5.1.23-1
 - update to 5.1.23
 
