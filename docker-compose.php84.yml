@@ -12,6 +12,7 @@ services:
       - rpm9rocky:/home/centos/rpmbuild/RPMS
     build:
       context: .
+      dockerfile: Dockerfile.RL9
       args:
         os: $RL9
         image: php-8.4
