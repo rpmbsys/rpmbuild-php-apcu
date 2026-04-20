@@ -1,10 +1,10 @@
-ARG os=10.1.20251126
-ARG image=php-8.4
+ARG os=8.10.20240528
+ARG image=php-5.6
 
 FROM aursu/pearbuild:${os}-${image}
 
 RUN dnf -y install \
-        pcre2-devel \
+        pcre-devel \
     && dnf clean all && rm -rf /var/cache/dnf
 
 COPY SOURCES ${BUILD_TOPDIR}/SOURCES

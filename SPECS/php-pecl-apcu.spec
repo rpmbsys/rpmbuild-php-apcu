@@ -1,118 +1,108 @@
 # Fedora spec file for php-pecl-apcu
 #
-# SPDX-FileCopyrightText:  Copyright 2013-2025 Remi Collet
-# SPDX-License-Identifier: CECILL-2.1
-# http://www.cecill.info/licences/Licence_CeCILL_V2-en.txt
+# Copyright (c) 2013-2016 Remi Collet
+# License: CC-BY-SA
+# http://creativecommons.org/licenses/by-sa/4.0/
 #
 # Please, preserve the changelog entries
 #
+%global pecl_name apcu
+%global with_zts  0%{?__ztsphp:1}
+%global ini_name  40-%{pecl_name}.ini
 
-%global php_base   php
-
-%global pie_vend   apcu
-%global pie_proj   apcu
-%global pecl_name  apcu
-%global ini_name   40-%{pecl_name}.ini
-%global sources    %{pecl_name}-%{version}
-
-
-%define _debugsource_template %{nil}
-%define debug_package %{nil}
-
-Name:           %{php_base}-pecl-apcu
+Name:           php-pecl-apcu
 Summary:        APC User Cache
-Version:        5.1.28
-Release:        2%{?dist}
-Source0:        https://pecl.php.net/get/%{sources}.tgz
+Version:        4.0.11
+Release:        1%{?dist}
+Source0:        http://pecl.php.net/get/%{pecl_name}-%{version}.tgz
 Source1:        %{pecl_name}.ini
 Source2:        %{pecl_name}-panel.conf
 Source3:        %{pecl_name}.conf.php
 
-License:        PHP-3.01
-URL:            https://pecl.php.net/package/APCu
+License:        PHP
+Group:          Development/Languages
+URL:            http://pecl.php.net/package/APCu
 
-ExcludeArch:    %{ix86}
-
-BuildRequires:  make
-BuildRequires:  gcc
-BuildRequires:  %{php_base}-devel
+BuildRequires:  php-devel
 BuildRequires:  php-pear
+BuildRequires:  pcre-devel
 
 Requires:       php(zend-abi) = %{php_zend_api}
 Requires:       php(api) = %{php_core_api}
 
-Provides:       php-%{pecl_name}                 = %{version}
-Provides:       php-%{pecl_name}%{?_isa}         = %{version}
-Provides:       php-pecl(%{pecl_name})           = %{version}
-Provides:       php-pecl(%{pecl_name})%{?_isa}   = %{version}
-Provides:       php-pie(%{pie_vend}/%{pie_proj}) = %{version}
-Provides:       php-%{pie_vend}-%{pie_proj}      = %{version}
-
-%if "%{php_base}" != "php"
-Requires:     %{php_base}-common%{?_isa}
-Conflicts:    php-pecl-%{pecl_name}
-Provides:     php-pecl-%{pecl_name} = %{version}-%{release}
-Provides:     php-pecl-%{pecl_name}%{?_isa} = %{version}-%{release}
-%endif
+Obsoletes:      php-apcu < 4.0.0-1
+Provides:       php-apcu = %{version}
+Provides:       php-apcu%{?_isa} = %{version}
+Provides:       php-pecl(apcu) = %{version}
+Provides:       php-pecl(apcu)%{?_isa} = %{version}
+Obsoletes:      php-pecl-apc < 4
+# Same provides than APC, this is a drop in replacement
+Provides:       php-apc = %{version}
+Provides:       php-apc%{?_isa} = %{version}
+Provides:       php-pecl-apc = %{version}
+Provides:       php-pecl-apc%{?_isa} = %{version}
+Provides:       php-pecl(APC) = %{version}
+Provides:       php-pecl(APC)%{?_isa} = %{version}
 
 
 %description
-APCu is userland caching: APC stripped of opcode caching.
+APCu is userland caching: APC stripped of opcode caching in preparation
+for the deployment of Zend OPcache as the primary solution to opcode
+caching in future versions of PHP.
 
-APCu only supports userland caching of variables.
+APCu has a revised and simplified codebase, by the time the PECL release
+is available, every part of APCu being used will have received review and
+where necessary or appropriate, changes.
 
-The %{?sub_prefix}php-pecl-apcu-bc package provides a drop
-in replacement for APC.
+Simplifying and documenting the API of APCu completely removes the barrier
+to maintenance and development of APCu in the future, and additionally allows
+us to make optimizations not possible previously because of APC's inherent
+complexity.
+
+APCu only supports userland caching (and dumping) of variables, providing an
+upgrade path for the future. When O+ takes over, many will be tempted to use
+3rd party solutions to userland caching, possibly even distributed solutions;
+this would be a grave error. The tried and tested APC codebase provides far
+superior support for local storage of PHP variables.
 
 
 %package devel
 Summary:       APCu developer files (header)
+Group:         Development/Libraries
 Requires:      %{name}%{?_isa} = %{version}-%{release}
-
-%if "%{php_base}" == "php"
-Requires:     php-devel%{?_isa}
-%else
-Requires:     %{php_base}-devel%{?_isa}
-Requires:     %{php_base}-common%{?_isa}
-Conflicts:    php-pecl-%{pecl_name}-devel
-Provides:     php-pecl-%{pecl_name}-devel = %{version}-%{release}
-Provides:     php-pecl-%{pecl_name}-devel%{?_isa} = %{version}-%{release}
-%endif
+Requires:      php-devel%{?_isa}
+Obsoletes:     php-pecl-apc-devel < 4
+Provides:      php-pecl-apc-devel = %{version}-%{release}
+Provides:      php-pecl-apc-devel%{?_isa} = %{version}-%{release}
 
 %description devel
 These are the files needed to compile programs using APCu.
 
 
-%if "%{php_base}" == "php"
 %package -n apcu-panel
-%else
-%package panel
-Requires:      %{php_base}-common
-Conflicts:     apcu-panel
-Provides:      apcu-panel = %{version}-%{release}
-%endif
 Summary:       APCu control panel
+Group:         Applications/Internet
 BuildArch:     noarch
 Requires:      %{name} = %{version}-%{release}
-Requires:      php(httpd)
+Requires:      mod_php
 Requires:      php-gd
 Requires:      httpd
+Obsoletes:     apc-panel < 4
+Provides:      apc-panel = %{version}-%{release}
 
-%if "%{php_base}" == "php"
 %description -n apcu-panel
-%else
-%description panel
-%endif
 This package provides the APCu control panel, with Apache
 configuration, available on http://localhost/apcu-panel/
 
 
 %prep
 %setup -qc
+mv %{pecl_name}-%{version} NTS
 
 sed -e '/LICENSE/s/role="doc"/role="src"/' -i package.xml
 
-cd %{sources}
+cd NTS
+
 # Sanity check, really often broken
 extver=$(sed -n '/#define PHP_APCU_VERSION/{s/.* "//;s/".*$//;p}' php_apc.h)
 if test "x${extver}" != "x%{version}"; then
@@ -121,36 +111,47 @@ if test "x${extver}" != "x%{version}"; then
 fi
 cd ..
 
+%if %{with_zts}
+# duplicate for ZTS build
+cp -pr NTS ZTS
+%endif
+
 # Fix path to configuration file
 sed -e s:apc.conf.php:%{_sysconfdir}/apcu-panel/conf.php:g \
-    -i  %{sources}/apc.php
+    -i  NTS/apc.php
 
 
 %build
-cd %{sources}
-%{__phpize}
-sed -e 's/INSTALL_ROOT/DESTDIR/' -i build/Makefile.global
+cd NTS
+%{_bindir}/phpize
+%configure --with-php-config=%{_bindir}/php-config
+make %{?_smp_mflags}
 
-%configure \
-   --enable-apcu \
-   --with-php-config=%{__phpconfig}
-
-%make_build
+%if %{with_zts}
+cd ../ZTS
+%{_bindir}/zts-phpize
+%configure --with-php-config=%{_bindir}/zts-php-config
+make %{?_smp_mflags}
+%endif
 
 
 %install
-cd %{sources}
-
-# Install extension and configuration
-%make_install
+# Install the NTS stuff
+make -C NTS install INSTALL_ROOT=%{buildroot}
 install -D -m 644 %{SOURCE1} %{buildroot}%{php_inidir}/%{ini_name}
 
+%if %{with_zts}
+# Install the ZTS stuff
+make -C ZTS install INSTALL_ROOT=%{buildroot}
+install -D -m 644 %{SOURCE1} %{buildroot}%{php_ztsinidir}/%{ini_name}
+%endif
+
 # Install the package XML file
-install -D -m 644 ../package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
+install -D -m 644 package.xml %{buildroot}%{pecl_xmldir}/%{name}.xml
 
 # Install the Control Panel
 # Pages
-install -D -m 644 -p apc.php  \
+install -D -m 644 -p NTS/apc.php  \
         %{buildroot}%{_datadir}/apcu-panel/index.php
 # Apache config
 install -D -m 644 -p %{SOURCE2} \
@@ -160,6 +161,7 @@ install -D -m 644 -p %{SOURCE3} \
         %{buildroot}%{_sysconfdir}/apcu-panel/conf.php
 
 # Test & Documentation
+cd NTS
 for i in $(grep 'role="test"' ../package.xml | sed -e 's/^.*name="//;s/".*$//')
 do install -Dpm 644 $i %{buildroot}%{pecl_testdir}/%{pecl_name}/$i
 done
@@ -169,36 +171,58 @@ done
 
 
 %check
-cd %{sources}
-%{__php} -n \
-   -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so \
-   -m | grep '^apcu$'
+cd NTS
 
-# Upstream test suite
-TEST_PHP_EXECUTABLE=%{__php} \
-TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
-%{__php} -n run-tests.php -q --show-diff
+# Check than both extensions are reported (BC mode)
+%{_bindir}/php -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apcu'
+%{_bindir}/php -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apc$'
+
+# Upstream test suite for NTS extension
+TEST_PHP_EXECUTABLE=%{_bindir}/php \
+TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
+NO_INTERACTION=1 \
+REPORT_EXIT_STATUS=1 \
+%{_bindir}/php -n run-tests.php
+
+%if %{with_zts}
+cd ../ZTS
+
+%{__ztsphp}    -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apcu'
+%{__ztsphp}    -n -d extension_dir=modules -d extension=apcu.so -m | grep 'apc$'
+
+# Upstream test suite for ZTS extension
+TEST_PHP_EXECUTABLE=%{__ztsphp} \
+TEST_PHP_ARGS="-n -d extension_dir=$PWD/modules -d extension=%{pecl_name}.so" \
+NO_INTERACTION=1 \
+REPORT_EXIT_STATUS=1 \
+%{__ztsphp} -n run-tests.php
+%endif
 
 
 %files
-%license %{sources}/LICENSE
+%license NTS/LICENSE
 %doc %{pecl_docdir}/%{pecl_name}
 %{pecl_xmldir}/%{name}.xml
 
 %config(noreplace) %{php_inidir}/%{ini_name}
 %{php_extdir}/%{pecl_name}.so
 
+%if %{with_zts}
+%{php_ztsextdir}/%{pecl_name}.so
+%config(noreplace) %{php_ztsinidir}/%{ini_name}
+%endif
+
 
 %files devel
 %doc %{pecl_testdir}/%{pecl_name}
 %{php_incldir}/ext/%{pecl_name}
 
-
-%if "%{php_base}" == "php"
-%files -n apcu-panel
-%else
-%files panel
+%if %{with_zts}
+%{php_ztsincldir}/ext/%{pecl_name}
 %endif
+
+
+%files -n apcu-panel
 # Need to restrict access, as it contains a clear password
 %attr(550,apache,root) %dir %{_sysconfdir}/apcu-panel
 %config(noreplace) %{_sysconfdir}/apcu-panel/conf.php
@@ -207,189 +231,6 @@ TEST_PHP_ARGS="-n -d extension=%{buildroot}%{php_extdir}/%{pecl_name}.so" \
 
 
 %changelog
-* Sat Jan 17 2026 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.28-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_44_Mass_Rebuild
-
-* Tue Dec  9 2025 Remi Collet <remi@remirepo.net> - 5.1.28-1
-- update to 5.1.28
-
-* Tue Oct 28 2025 Remi Collet <remi@remirepo.net> - 5.1.27-3
-- add %%php_base option to create namespaced packages
-
-* Wed Sep 17 2025 Remi Collet <remi@remirepo.net> - 5.1.27-2
-- rebuild for https://fedoraproject.org/wiki/Changes/php85
-
-* Fri Aug 29 2025 Remi Collet <remi@remirepo.net> - 5.1.27-1
-- update to 5.1.27
-
-* Wed Aug  6 2025 Remi Collet <remi@remirepo.net> - 5.1.26-1
-- update to 5.1.26
-
-* Tue Jul 29 2025 Remi Collet <remi@remirepo.net> - 5.1.25-2
-- cleanup spec file, remove ZTS stuff and very old Obsoletes
-- add pie Provides
-- refresh configuration for new option and new default values
-
-* Tue Jul 29 2025 Remi Collet <remi@remirepo.net> - 5.1.25-1
-- update to 5.1.25
-- re-license spec file to CECILL-2.1
-
-* Fri Jul 25 2025 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.24-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_43_Mass_Rebuild
-
-* Sat Jan 18 2025 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.24-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_42_Mass_Rebuild
-
-* Mon Oct 14 2024 Remi Collet <remi@fedoraproject.org> - 5.1.24-2
-- rebuild for https://fedoraproject.org/wiki/Changes/php84
-
-* Mon Sep 23 2024 Remi Collet <remi@remirepo.net> - 5.1.24-1
-- update to 5.1.24
-
-* Fri Jul 19 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.23-5
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_41_Mass_Rebuild
-
-* Tue Apr 16 2024 Remi Collet <remi@remirepo.net> - 5.1.23-4
-- drop 32-bit support
-  https://fedoraproject.org/wiki/Changes/php_no_32_bit
-
-* Thu Jan 25 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.23-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
-
-* Sun Jan 21 2024 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.23-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_40_Mass_Rebuild
-
-* Mon Nov 13 2023 Remi Collet <remi@remirepo.net> - 5.1.23-1
-- update to 5.1.23
-
-* Tue Oct 03 2023 Remi Collet <remi@remirepo.net> - 5.1.22-6
-- rebuild for https://fedoraproject.org/wiki/Changes/php83
-- build out of sources tree
-
-* Fri Jul 21 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.22-6
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_39_Mass_Rebuild
-
-* Thu Apr 20 2023 Remi Collet <remi@remirepo.net> - 5.1.22-5
-- use SPDX license ID
-
-* Fri Jan 20 2023 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.22-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_38_Mass_Rebuild
-
-* Wed Oct 05 2022 Remi Collet <remi@remirepo.net> - 5.1.22-3
-- rebuild for https://fedoraproject.org/wiki/Changes/php82
-
-* Tue Sep 20 2022 Remi Collet <remi@remirepo.net> - 5.1.22-2
-- drop unneeded build dependency on pcre #2128350
-
-* Mon Sep 19 2022 Remi Collet <remi@remirepo.net> - 5.1.22-1
-- update to 5.1.22
-
-* Fri Jul 22 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.21-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_37_Mass_Rebuild
-
-* Fri Jan 21 2022 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.21-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_36_Mass_Rebuild
-
-* Thu Oct 28 2021 Remi Collet <remi@remirepo.net> - 5.1.21-2
-- rebuild for https://fedoraproject.org/wiki/Changes/php81
-
-* Thu Oct  7 2021 Remi Collet <remi@remirepo.net> - 5.1.21-1
-- update to 5.1.21
-
-* Fri Jul 23 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.20-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_35_Mass_Rebuild
-
-* Thu Mar  4 2021 Remi Collet <remi@remirepo.net> - 5.1.20-1
-- update to 5.1.20
-
-* Wed Jan 27 2021 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.19-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_34_Mass_Rebuild
-
-* Mon Oct  5 2020 Remi Collet <remi@remirepo.net> - 5.1.19-1
-- update to 5.1.19
-
-* Tue Jul 28 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.18-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_33_Mass_Rebuild
-
-* Thu Jan 30 2020 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.18-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_32_Mass_Rebuild
-
-* Mon Oct 28 2019 Remi Collet <remi@remirepo.net> - 5.1.18-1
-- update to 5.1.18
-
-* Thu Oct 03 2019 Remi Collet <remi@remirepo.net> - 5.1.17-3
-- rebuild for https://fedoraproject.org/wiki/Changes/php74
-- add upstream patches for test suite
-
-* Fri Jul 26 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.17-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_31_Mass_Rebuild
-
-* Fri Feb  8 2019 Remi Collet <remi@remirepo.net> - 5.1.17-1
-- update to 5.1.17
-
-* Sat Feb 02 2019 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.15-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_30_Mass_Rebuild
-
-* Fri Dec  7 2018 Remi Collet <remi@remirepo.net> - 5.1.15-1
-- update to 5.1.15
-
-* Wed Nov 21 2018 Remi Collet <remi@remirepo.net> - 5.1.14-1
-- update to 5.1.14 (stable)
-
-* Mon Nov 19 2018 Remi Collet <remi@remirepo.net> - 5.1.13-1
-- update to 5.1.13 (stable)
-
-* Thu Oct 11 2018 Remi Collet <remi@remirepo.net> - 5.1.12-3
-- Rebuild for https://fedoraproject.org/wiki/Changes/php73
-
-* Fri Jul 13 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.12-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_29_Mass_Rebuild
-
-* Mon Jul  9 2018 Remi Collet <remi@remirepo.net> - 5.1.12-1
-- update to 5.1.12 (stable)
-
-* Thu Mar  8 2018 Remi Collet <remi@remirepo.net> - 5.1.11-1
-- update to 5.1.11 (stable)
-
-* Fri Feb 16 2018 Remi Collet <remi@remirepo.net> - 5.1.10-1
-- update to 5.1.10 (stable)
-
-* Fri Feb 09 2018 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.9-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_28_Mass_Rebuild
-
-* Fri Jan 26 2018 Remi Collet <remi@remirepo.net> - 5.1.9-2
-- undefine _strict_symbol_defs_build
-
-* Tue Jan  2 2018 Remi Collet <remi@fedoraproject.org> - 5.1.9-1
-- Update to 5.1.9 (php 7, stable)
-
-* Tue Oct 03 2017 Remi Collet <remi@fedoraproject.org> - 5.1.8-5
-- rebuild for https://fedoraproject.org/wiki/Changes/php72
-
-* Thu Aug 03 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-4
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Binutils_Mass_Rebuild
-
-* Thu Jul 27 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-3
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_27_Mass_Rebuild
-
-* Sat Feb 11 2017 Fedora Release Engineering <releng@fedoraproject.org> - 5.1.8-2
-- Rebuilt for https://fedoraproject.org/wiki/Fedora_26_Mass_Rebuild
-
-* Mon Jan 16 2017 Remi Collet <remi@fedoraproject.org> - 5.1.8-1
-- Update to 5.1.8 (php 7, stable)
-
-* Mon Nov 14 2016 Remi Collet <remi@fedoraproject.org> - 5.1.7-2
-- rebuild for https://fedoraproject.org/wiki/Changes/php71
-
-* Fri Oct 21 2016 Remi Collet <remi@fedoraproject.org> - 5.1.7-1
-- Update to 5.1.7 (php 7, stable)
-
-* Thu Oct  6 2016 Remi Collet <remi@fedoraproject.org> - 5.1.6-1
-- Update to 5.1.6 (php 7, stable)
-
-* Mon Jun 27 2016 Remi Collet <remi@fedoraproject.org> - 5.1.5-1
-- Update to 5.1.5 (php 7, stable)
-
 * Wed Apr 20 2016 Remi Collet <remi@fedoraproject.org> - 4.0.11-1
 - Update to 4.0.11 (stable)
 - fix license usage and spec cleanup
